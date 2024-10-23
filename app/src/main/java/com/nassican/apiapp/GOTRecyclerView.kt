@@ -7,13 +7,14 @@ import com.bumptech.glide.Glide
 import com.nassican.apiapp.data.models.Result
 import com.nassican.apiapp.databinding.RecyclerLayoutBinding
 
-class GOTRecyclerView(private val onItemClick: (Result) -> Unit) : RecyclerView.Adapter<GOTRecyclerView.ViewHolder>() {
+class GOTRecyclerView(private val onItemClick: (Result) -> Unit, private val onLoadMore: () -> Unit) : RecyclerView.Adapter<GOTRecyclerView.ViewHolder>() {
 
-    private var characters = emptyList<Result>()
+    private var characters = mutableListOf<Result>()
 
-    fun setData(newCharacters: List<Result>) {
-        characters = newCharacters
-        notifyDataSetChanged()
+    fun addData(newCharacters: List<Result>) {
+        val oldSize = characters.size
+        characters.addAll(newCharacters)
+        notifyItemRangeInserted(oldSize, newCharacters.size)
     }
 
     inner class ViewHolder(private val binding: RecyclerLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -36,6 +37,9 @@ class GOTRecyclerView(private val onItemClick: (Result) -> Unit) : RecyclerView.
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(characters[position])
+        if (position == characters.size - 1) {
+            onLoadMore()
+        }
     }
 
     override fun getItemCount(): Int = characters.size

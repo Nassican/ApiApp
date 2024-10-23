@@ -15,9 +15,14 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter = GOTRecyclerView { character ->
-        showCharacterDetail(character)
-    }
+    private var currentPage = 1
+    private val pageSize = 20
+    private var isLoading = false
+
+    private val adapter = GOTRecyclerView(
+        onItemClick = { character -> showCharacterDetail(character) },
+        onLoadMore = { loadMoreCharacters() }
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,14 +46,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadCharacters() {
+        if (isLoading) return
+        isLoading = true
         lifecycleScope.launch {
             try {
-                val characters = AppModule.provideCharacters().getCharacters()
-                adapter.setData(characters)
+                val characters = AppModule.provideCharacters().getCharacters(currentPage, pageSize)
+                adapter.addData(characters)
+                currentPage++
             } catch (e: Exception) {
                 println("Error: $e")
+            } finally {
+                isLoading = false
             }
         }
+    }
+
+    private fun loadMoreCharacters() {
+        loadCharacters()
     }
 
     private fun showCharacterDetail(character: Result) {
