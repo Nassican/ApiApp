@@ -8,13 +8,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nassican.apiapp.data.AppModule
+import com.nassican.apiapp.data.models.Result
 import com.nassican.apiapp.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter = GOTRecyclerView()
+    private val adapter = GOTRecyclerView { character ->
+        showCharacterDetail(character)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +44,18 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val characters = AppModule.provideCharacters().getCharacters()
-                println("Characters: $characters")
                 adapter.setData(characters)
             } catch (e: Exception) {
                 println("Error: $e")
             }
         }
+    }
+
+    private fun showCharacterDetail(character: Result) {
+        val fragment = CharacterDetailFragment.newInstance(character)
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

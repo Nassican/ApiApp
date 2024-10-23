@@ -7,7 +7,7 @@ import com.bumptech.glide.Glide
 import com.nassican.apiapp.data.models.Result
 import com.nassican.apiapp.databinding.RecyclerLayoutBinding
 
-class GOTRecyclerView : RecyclerView.Adapter<GOTRecyclerView.ViewHolder>() {
+class GOTRecyclerView(private val onItemClick: (Result) -> Unit) : RecyclerView.Adapter<GOTRecyclerView.ViewHolder>() {
 
     private var characters = emptyList<Result>()
 
@@ -22,6 +22,10 @@ class GOTRecyclerView : RecyclerView.Adapter<GOTRecyclerView.ViewHolder>() {
             Glide.with(binding.root.context)
                 .load(character.imageUrl)
                 .into(binding.characterImage)
+
+            itemView.setOnClickListener {
+                onItemClick(character)
+            }
         }
     }
 
